@@ -144,7 +144,15 @@
           hideElement(listItem);
           continue;
         }
-        // Messaging overlay popup: parent is div.msg-overlay-list-bubble__convo-card-container--v2
+        // Messaging overlay popup: hide the fixed-height convo-item wrapper
+        const overlayItem = pill.closest(
+          ".msg-overlay-list-bubble__convo-item--v2, .msg-overlay-list-bubble__convo-item"
+        );
+        if (overlayItem) {
+          hideElement(overlayItem);
+          continue;
+        }
+        // Fallback: hide the card container
         const overlayCard = pill.closest(
           ".msg-overlay-list-bubble__convo-card-container--v2, .msg-overlay-list-bubble__convo-card-container"
         );

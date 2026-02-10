@@ -1,0 +1,77 @@
+/* LinkedIn Ad Blocker - Static CSS hiding rules */
+/* These apply instantly before JS loads, preventing ad flicker */
+
+/* Sidebar ad banners */
+.ad-banner-container,
+.ad-banner,
+.ads-container {
+  display: none !important;
+}
+
+/* Text ads */
+#topTextAd {
+  display: none !important;
+}
+
+/* Right rail upsells and ads */
+.right-rail-upsell,
+.right-rail-sponsored {
+  display: none !important;
+}
+
+/* Premium upsells */
+.premium-upsell-link,
+.nav-item__try-premium,
+.premium-upsell,
+.artdeco-card .premium-upsell-link {
+  display: none !important;
+}
+
+/* Generic upsells */
+.upsell,
+.wvmp-upsell,
+#insights-upsell {
+  display: none !important;
+}
+
+/* Advertise and premium product links */
+a[href*="premium/products"],
+a[href*="/ads/"],
+a[href*="/ad/start/"],
+a[href*="linkedin.com/advertising"] {
+  display: none !important;
+}
+
+/* People you may know / follow recommendations in sidebar */
+#pymk-container {
+  display: none !important;
+}
+
+/* "Add to your feed" panel */
+aside[data-view-name="feed-right-rail"] .feed-follows-module {
+  display: none !important;
+}
+
+/* Sponsored messaging */
+.msg-sponsored-content,
+.sponsored-message-indicator {
+  display: none !important;
+}
+
+/* Jobs, companies, groups "for you" sidebar modules */
+#jobsForYou,
+#companiesForYou,
+#groupsForYou {
+  display: none !important;
+}
+
+/* LinkedIn Learning promos in sidebar */
+.learning-top-course-card,
+.feed-shared-learning-card {
+  display: none !important;
+}
+
+/* Class used by content.js to hide dynamic elements */
+.linkedin-ad-blocker-hidden {
+  display: none !important;
+}

@@ -48,6 +48,12 @@ const CATEGORIES = {
     description: "Try Premium and upgrade prompts",
     defaultEnabled: true,
   },
+  promotedJobs: {
+    id: "promotedJobs",
+    label: "Promoted Jobs",
+    description: "Sponsored job listings on the Jobs page",
+    defaultEnabled: false,
+  },
 };
 
 const masterToggle = document.getElementById("master-toggle");
@@ -56,7 +62,8 @@ const categoriesList = document.getElementById("categories-list");
 
 function buildCategoryRows(categories) {
   for (const cat of Object.values(CATEGORIES)) {
-    const enabled = categories[cat.id] !== false;
+    const enabled =
+      cat.id in categories ? categories[cat.id] : cat.defaultEnabled !== false;
 
     const row = document.createElement("div");
     row.className = "category-row";

@@ -47,6 +47,13 @@
       defaultEnabled: true,
       type: "both",
     },
+    promotedJobs: {
+      id: "promotedJobs",
+      label: "Promoted Jobs",
+      description: "Sponsored job listings on the Jobs page",
+      defaultEnabled: false,
+      type: "dynamic",
+    },
     sidebarAds: {
       id: "sidebarAds",
       label: "Sidebar Ads",
@@ -59,7 +66,7 @@
       label: "Premium Upsells",
       description: "Try Premium and upgrade prompts",
       defaultEnabled: true,
-      type: "css",
+      type: "both",
     },
   };
 
@@ -107,7 +114,9 @@
       .right-rail-sponsored,
       #jobsForYou,
       #companiesForYou,
-      #groupsForYou {
+      #groupsForYou,
+      iframe[width="300"][height="250"],
+      :has(> iframe[width="300"][height="250"]) {
         display: none !important;
       }
     `,
@@ -148,6 +157,7 @@
       .wvmp-upsell,
       #insights-upsell,
       a[href*="premium/products"],
+      a[href*="/premium/"],
       a[href*="/ads/"],
       a[href*="/ad/start/"],
       a[href*="linkedin.com/advertising"] {
@@ -345,6 +355,57 @@
         hideElement(card);
       }
     }
+
+    // Text-based fallback for non-feed pages (obfuscated CSS classes)
+    const sections = root.querySelectorAll("section");
+    for (const section of sections) {
+      const text = section.textContent || "";
+      if (
+        text.length < 500 &&
+        /30 second break|today's puzzle|play games|puzzel van vandaag|speel games/i.test(
+          text
+        )
+      ) {
+        hideElement(section);
+      }
+    }
+  }
+
+  function scanPromotedJobs(root) {
+    // Jobs page: "Promoted" appears as plain text with obfuscated classes
+    // Walk up from text node to find the job card link
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const text = walker.currentNode.textContent.trim().toLowerCase();
+      if (text === "promoted" || text === "gesponsord") {
+        let el = walker.currentNode.parentElement;
+        // Skip if this is a feed post (handled by scanPromotedPosts)
+        if (findFeedPostParent(el)) continue;
+        for (let i = 0; i < 10 && el && el !== document.body; i++) {
+          if (el.tagName === "A" && el.href && el.href.includes("/jobs/view/")) {
+            hideElement(el);
+            break;
+          }
+          el = el.parentElement;
+        }
+      }
+    }
+  }
+
+  function scanPremiumUpsells(root) {
+    // Text-based detection for premium upsells on non-feed pages
+    const sections = root.querySelectorAll("section");
+    for (const section of sections) {
+      const text = section.textContent || "";
+      if (
+        text.length < 500 &&
+        /apply smarter|1-month free trial|probeer premium|try premium for free/i.test(
+          text
+        )
+      ) {
+        hideElement(section);
+      }
+    }
   }
 
   // --- Dynamic CSS Injection ---
@@ -372,13 +433,21 @@
     learningPromos: scanLearningPromos,
     promotedMessages: scanPromotedMessages,
     newsAndGames: scanNewsAndGames,
+    promotedJobs: scanPromotedJobs,
+    premiumUpsells: scanPremiumUpsells,
   };
+
+  function isCategoryEnabled(catId) {
+    if (catId in categorySettings) return categorySettings[catId] !== false;
+    const cat = CATEGORIES[catId];
+    return cat ? cat.defaultEnabled !== false : true;
+  }
 
   function scanForAds(root) {
     if (!masterEnabled) return;
 
     for (const [catId, scanFn] of Object.entries(DYNAMIC_SCANNERS)) {
-      if (categorySettings[catId] !== false) {
+      if (isCategoryEnabled(catId)) {
         scanFn(root);
       }
     }
@@ -394,7 +463,7 @@
 
   function applyCSSCategories() {
     for (const catId of Object.keys(CSS_RULES)) {
-      applyCSS(catId, masterEnabled && categorySettings[catId] !== false);
+      applyCSS(catId, masterEnabled && isCategoryEnabled(catId));
     }
   }
 
@@ -461,6 +530,53 @@
     });
   }
 
+  // --- Shadow DOM Observer (Messaging Overlay) ---
+
+  let shadowObserverAttached = false;
+
+  function observeShadowMessaging() {
+    if (shadowObserverAttached) return;
+
+    const shadowHost = document.querySelector(".theme--light");
+    if (!shadowHost || !shadowHost.shadowRoot) {
+      // Shadow root not ready yet — poll for it
+      let attempts = 0;
+      const poll = setInterval(() => {
+        attempts++;
+        const host = document.querySelector(".theme--light");
+        if (host && host.shadowRoot) {
+          attachShadowObserver(host.shadowRoot);
+          clearInterval(poll);
+        }
+        if (attempts >= 30) clearInterval(poll); // Stop after 30s
+      }, 1000);
+      return;
+    }
+
+    attachShadowObserver(shadowHost.shadowRoot);
+  }
+
+  function attachShadowObserver(shadowRoot) {
+    if (shadowObserverAttached) return;
+    shadowObserverAttached = true;
+
+    const shadowObserver = new MutationObserver(() => {
+      if (!masterEnabled || categorySettings.promotedMessages === false) return;
+      scanPromotedMessages(shadowRoot);
+      scheduleFlush();
+    });
+
+    shadowObserver.observe(shadowRoot, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Initial scan
+    if (masterEnabled && categorySettings.promotedMessages !== false) {
+      scanPromotedMessages(shadowRoot);
+    }
+  }
+
   // --- Initialize ---
 
   function init() {
@@ -481,11 +597,14 @@
         }
       }
 
-      // Start observing
+      // Start observing main DOM
       observer.observe(document.body, {
         childList: true,
         subtree: true,
       });
+
+      // Observe shadow DOM for messaging overlay (promoted messages)
+      observeShadowMessaging();
     });
 
     // Listen for setting changes from popup

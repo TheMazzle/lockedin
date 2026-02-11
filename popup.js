@@ -1,4 +1,4 @@
-// Category definitions (must match content.js)
+// SYNC: CATEGORIES must match content.js — update both files together
 const CATEGORIES = {
   promotedPosts: {
     id: "promotedPosts",
@@ -54,8 +54,6 @@ const masterToggle = document.getElementById("master-toggle");
 const countEl = document.getElementById("count");
 const categoriesList = document.getElementById("categories-list");
 
-let categoryToggles = {};
-
 function buildCategoryRows(categories) {
   for (const cat of Object.values(CATEGORIES)) {
     const enabled = categories[cat.id] !== false;
@@ -64,19 +62,38 @@ function buildCategoryRows(categories) {
     row.className = "category-row";
     row.dataset.category = cat.id;
 
-    row.innerHTML = `
-      <div class="category-info">
-        <div class="category-label">${cat.label}</div>
-        <div class="category-description">${cat.description}</div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" data-category="${cat.id}" ${enabled ? "checked" : ""}>
-        <span class="slider"></span>
-      </label>
-    `;
+    const info = document.createElement("div");
+    info.className = "category-info";
+
+    const labelEl = document.createElement("div");
+    labelEl.className = "category-label";
+    labelEl.textContent = cat.label;
+
+    const descEl = document.createElement("div");
+    descEl.className = "category-description";
+    descEl.textContent = cat.description;
+
+    info.appendChild(labelEl);
+    info.appendChild(descEl);
+
+    const toggle = document.createElement("label");
+    toggle.className = "toggle";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.dataset.category = cat.id;
+    input.checked = enabled;
+
+    const slider = document.createElement("span");
+    slider.className = "slider";
+
+    toggle.appendChild(input);
+    toggle.appendChild(slider);
+
+    row.appendChild(info);
+    row.appendChild(toggle);
 
     categoriesList.appendChild(row);
-    categoryToggles[cat.id] = row.querySelector("input");
   }
 }
 

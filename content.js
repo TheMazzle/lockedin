@@ -2,6 +2,7 @@
   "use strict";
 
   // --- Category Definitions ---
+  // SYNC: CATEGORIES must match popup.js — update both files together
 
   const CATEGORIES = {
     promotedPosts: {
@@ -23,28 +24,28 @@
       label: "Follow Suggestions",
       description: "People and companies to follow",
       defaultEnabled: true,
-      type: "dynamic",
+      type: "both",
     },
     learningPromos: {
       id: "learningPromos",
       label: "LinkedIn Learning",
       description: "Course and learning promotions",
       defaultEnabled: true,
-      type: "dynamic",
+      type: "both",
     },
     promotedMessages: {
       id: "promotedMessages",
       label: "Promoted Messages",
       description: "Sponsored messages in inbox",
       defaultEnabled: true,
-      type: "dynamic",
+      type: "both",
     },
     newsAndGames: {
       id: "newsAndGames",
       label: "News & Games",
       description: "LinkedIn News and Today's Puzzle",
       defaultEnabled: true,
-      type: "dynamic",
+      type: "both",
     },
     sidebarAds: {
       id: "sidebarAds",
@@ -104,15 +105,37 @@
       #topTextAd,
       .right-rail-upsell,
       .right-rail-sponsored,
-      .msg-sponsored-content,
-      .sponsored-message-indicator,
-      #pymk-container,
-      aside[data-view-name="feed-right-rail"] .feed-follows-module,
       #jobsForYou,
       #companiesForYou,
-      #groupsForYou,
+      #groupsForYou {
+        display: none !important;
+      }
+    `,
+    followRecommendations: `
+      #pymk-container,
+      aside[data-view-name="feed-right-rail"] .feed-follows-module {
+        display: none !important;
+      }
+    `,
+    learningPromos: `
       .learning-top-course-card,
       .feed-shared-learning-card {
+        display: none !important;
+      }
+    `,
+    promotedMessages: `
+      .msg-sponsored-content,
+      .sponsored-message-indicator {
+        display: none !important;
+      }
+    `,
+    newsAndGames: `
+      .games-module,
+      .games-entrypoint,
+      [data-view-name="games-module"],
+      .news-module,
+      [data-view-name="news-module"],
+      #feed-news-module {
         display: none !important;
       }
     `,
@@ -138,6 +161,8 @@
   let masterEnabled = true;
   let categorySettings = {};
   let blockedCount = 0;
+  let blockedCountDirty = false;
+  let flushTimeout = null;
 
   // --- Feed Post Helpers ---
 
@@ -170,8 +195,20 @@
     if (el && !el.classList.contains("linkedin-clean-feed-hidden")) {
       el.classList.add("linkedin-clean-feed-hidden");
       blockedCount++;
-      chrome.storage.local.set({ blockedCount });
+      blockedCountDirty = true;
     }
+  }
+
+  function flushBlockedCount() {
+    if (blockedCountDirty) {
+      chrome.storage.local.set({ blockedCount });
+      blockedCountDirty = false;
+    }
+  }
+
+  function scheduleFlush() {
+    if (flushTimeout) clearTimeout(flushTimeout);
+    flushTimeout = setTimeout(flushBlockedCount, 2000);
   }
 
   function showElement(el) {
@@ -207,7 +244,9 @@
   }
 
   function scanSuggestedPosts(root) {
-    const allSpans = root.querySelectorAll("span");
+    const allSpans = root.querySelectorAll(
+      '.feed-shared-update-v2 span, .occludable-update span, [data-urn^="urn:li:activity"] span'
+    );
     for (const span of allSpans) {
       if (isSuggestedText(span.textContent || "")) {
         const parent = span.closest(
@@ -289,20 +328,20 @@
 
     // Games / Today's Puzzle module
     const gamesModules = root.querySelectorAll(
-      '.games-module, [data-view-name="games-module"], .games-entrypoints-module__subheader'
+      '.games-module, [data-view-name="games-module"], .games-entrypoints-module__subheader, .games-entrypoint'
     );
     for (const mod of gamesModules) {
-      const card = mod.closest("section.artdeco-card") || mod;
+      const card = mod.closest(".artdeco-card") || mod;
       hideElement(card);
     }
 
-    // Text-based fallback for right rail cards
+    // Text-based fallback for right rail cards (EN + NL)
     const rightRailCards = root.querySelectorAll(
       "aside .artdeco-card, .scaffold-layout__aside .artdeco-card"
     );
     for (const card of rightRailCards) {
       const text = card.textContent || "";
-      if (/linkedin news|today's puzzle|play games/i.test(text)) {
+      if (/linkedin news|today's puzzle|play games|puzzel van vandaag|speel games/i.test(text)) {
         hideElement(card);
       }
     }
@@ -343,6 +382,7 @@
         scanFn(root);
       }
     }
+    scheduleFlush();
   }
 
   function showAllHidden() {
@@ -442,7 +482,7 @@
       }
 
       // Start observing
-      observer.observe(document.body || document.documentElement, {
+      observer.observe(document.body, {
         childList: true,
         subtree: true,
       });
@@ -466,6 +506,7 @@
       if (changes.categories) {
         categorySettings = changes.categories.newValue;
         applyCSSCategories();
+        showAllHidden();
         if (masterEnabled) {
           scanForAds(document.body);
         }

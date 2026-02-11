@@ -1,17 +1,21 @@
 # LinkedIn Clean Feed
 
-A Chrome/Brave extension that removes ads, promoted posts, suggestions, and clutter from your LinkedIn feed.
+A Chrome/Brave extension that removes ads, promoted posts, suggestions, and clutter from your LinkedIn feed. Fully customizable with per-category controls.
 
 ## What it blocks
 
-- **Promoted posts** in your feed (multi-language support)
-- **Suggested posts** and follow recommendations
-- **Sidebar ads** and banner containers
-- **Premium upsells** and "Try Premium" prompts
-- **Promoted messages** in your inbox and messaging overlay
-- **LinkedIn Learning** promos in the feed
-- **"People You May Know"** suggestions
-- **"Advertise"** links in navigation
+| Category | What gets hidden |
+|----------|-----------------|
+| Promoted Posts | Sponsored content in your feed (9 languages) |
+| Suggested Posts | Posts LinkedIn thinks you might like |
+| Follow Suggestions | "People you may know" and follow recommendations |
+| LinkedIn Learning | Course and learning promotions |
+| Promoted Messages | Sponsored messages in inbox and overlay |
+| News & Games | LinkedIn News module and Today's Puzzle |
+| Sidebar Ads | Ad banners, sponsored sidebar content |
+| Premium Upsells | "Try Premium" prompts and upgrade links |
+
+Each category can be toggled independently.
 
 ## Install
 
@@ -19,7 +23,7 @@ A Chrome/Brave extension that removes ads, promoted posts, suggestions, and clut
 *Coming soon*
 
 ### Manual (developer mode)
-1. Clone this repo
+1. Clone this repo: `git clone https://github.com/TheMazzle/linkedin-clean-feed.git`
 2. Open `chrome://extensions/` (or `brave://extensions/`)
 3. Enable "Developer mode"
 4. Click "Load unpacked" and select the project folder
@@ -28,16 +32,19 @@ A Chrome/Brave extension that removes ads, promoted posts, suggestions, and clut
 
 Two-layer approach for instant, flicker-free blocking:
 
-1. **CSS rules** (`content.css`) — Injected at `document_start` before the page renders. Hides elements with stable CSS selectors (sidebar ads, premium upsells, etc.)
-2. **Content script** (`content.js`) — Uses a MutationObserver to detect dynamically loaded content like promoted posts (identified by locale-matched text labels) and messaging spam.
+1. **CSS rules** — Injected at `document_start` before the page renders. Hides elements with stable CSS selectors (sidebar ads, premium upsells).
+2. **Content script** — Uses a MutationObserver to detect dynamically loaded content like promoted posts (identified by locale-matched text labels) and messaging spam.
+
+## Customize
+
+Click the extension icon to open the popup:
+- **Master toggle** turns all blocking on/off
+- **Per-category toggles** let you choose exactly what to block
+- Your preferences sync across devices via Chrome Sync
 
 ## Privacy
 
-This extension:
-- Does **not** collect, store, or transmit any personal data
-- Does **not** use analytics or tracking
-- Only stores your on/off preference locally via `chrome.storage`
-- Requires no permissions beyond `storage` and access to `linkedin.com`
+This extension does not collect, store, or transmit any personal data. See [PRIVACY.md](PRIVACY.md) for details.
 
 ## License
 

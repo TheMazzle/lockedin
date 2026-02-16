@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LinkedIn Clean Feed",
-  "version": "2.0.0",
-  "description": "Remove ads, promoted posts, suggestions, and clutter from your LinkedIn feed. Per-category controls.",
+  "name": "LockedIn",
+  "version": "2.1.0",
+  "description": "Re-focus LinkedIn: block ads and clean your feed. Per-category controls.",
   "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html",

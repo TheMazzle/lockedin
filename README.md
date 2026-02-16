@@ -1,6 +1,6 @@
-# LinkedIn Clean Feed
+# LockedIn
 
-A Chrome/Brave extension that removes ads, promoted posts, suggestions, and clutter from your LinkedIn feed. Fully customizable with per-category controls.
+Re-focus LinkedIn: block ads and clean your feed. A Chrome/Brave extension with per-category controls.
 
 ## What it blocks
 
@@ -23,7 +23,7 @@ Each category can be toggled independently.
 *Coming soon*
 
 ### Manual (developer mode)
-1. Clone this repo: `git clone https://github.com/TheMazzle/linkedin-clean-feed.git`
+1. Clone this repo: `git clone https://github.com/TheMazzle/lockedin.git`
 2. Open `chrome://extensions/` (or `brave://extensions/`)
 3. Enable "Developer mode"
 4. Click "Load unpacked" and select the project folder

@@ -203,8 +203,8 @@
   }
 
   function hideElement(el) {
-    if (el && !el.classList.contains("linkedin-clean-feed-hidden")) {
-      el.classList.add("linkedin-clean-feed-hidden");
+    if (el && !el.classList.contains("lockedin-hidden")) {
+      el.classList.add("lockedin-hidden");
       blockedCount++;
       blockedCountDirty = true;
     }
@@ -223,8 +223,8 @@
   }
 
   function showElement(el) {
-    if (el && el.classList.contains("linkedin-clean-feed-hidden")) {
-      el.classList.remove("linkedin-clean-feed-hidden");
+    if (el && el.classList.contains("lockedin-hidden")) {
+      el.classList.remove("lockedin-hidden");
     }
   }
 
@@ -446,7 +446,7 @@
   // --- Dynamic CSS Injection ---
 
   function applyCSS(categoryId, enabled) {
-    const styleId = "linkedin-clean-feed-css-" + categoryId;
+    const styleId = "lockedin-css-" + categoryId;
     let styleTag = document.getElementById(styleId);
 
     if (enabled && !styleTag && CSS_RULES[categoryId]) {
@@ -490,7 +490,7 @@
   }
 
   function showAllHidden() {
-    const hidden = document.querySelectorAll(".linkedin-clean-feed-hidden");
+    const hidden = document.querySelectorAll(".lockedin-hidden");
     for (const el of hidden) {
       showElement(el);
     }

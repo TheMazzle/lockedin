@@ -1,6 +1,6 @@
-/* LinkedIn Clean Feed — Static CSS */
+/* LockedIn — Static CSS */
 /* Only the hidden class lives here; all category CSS is injected dynamically by content.js */
 
-.linkedin-clean-feed-hidden {
+.lockedin-hidden {
   display: none !important;
 }

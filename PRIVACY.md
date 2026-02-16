@@ -1,6 +1,6 @@
-# Privacy Policy — LinkedIn Clean Feed
+# Privacy Policy — LockedIn
 
-Last updated: 2026-02-11
+Last updated: 2026-02-16
 
 ## What We Collect
 
@@ -26,4 +26,4 @@ Updates to this policy will be reflected in the extension's GitHub repository.
 
 ## Contact
 
-For questions, open an issue at: https://github.com/TheMazzle/linkedin-clean-feed
+For questions, open an issue at: https://github.com/TheMazzle/lockedin

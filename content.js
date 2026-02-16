@@ -300,6 +300,28 @@
       const post = findFeedPostParent(card) || card;
       hideElement(post);
     }
+
+    // Text-based fallback for feed posts with obfuscated classes
+    const feedItems = root.querySelectorAll(
+      '.feed-shared-update-v2, .occludable-update, [data-urn^="urn:li:activity"]'
+    );
+    for (const item of feedItems) {
+      const text = item.textContent || "";
+      if (/popular course on linkedin learning|populaire cursus op linkedin learning|cours populaire sur linkedin learning|beliebter kurs auf linkedin learning|curso popular en linkedin learning/i.test(text)) {
+        hideElement(item);
+      }
+    }
+
+    // Right-rail learning cards
+    const rightRailCards = root.querySelectorAll(
+      "aside .artdeco-card, .scaffold-layout__aside .artdeco-card"
+    );
+    for (const card of rightRailCards) {
+      const text = card.textContent || "";
+      if (/popular course on linkedin learning|populaire cursus op linkedin learning|view course for free|bekijk cursus gratis/i.test(text)) {
+        hideElement(card);
+      }
+    }
   }
 
   function scanPromotedMessages(root) {

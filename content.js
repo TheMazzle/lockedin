@@ -183,7 +183,8 @@
   ];
 
   function isPromotedText(text) {
-    return PROMOTED_LABELS.includes(text.trim().toLowerCase());
+    const normalized = text.trim().toLowerCase();
+    return PROMOTED_LABELS.some((label) => normalized === label || normalized.endsWith("\n" + label) || normalized.endsWith(" · " + label));
   }
 
   function isSuggestedText(text) {
@@ -247,6 +248,18 @@
     );
     for (const span of hiddenSpans) {
       if (isPromotedText(span.textContent || "")) {
+        const post = findFeedPostParent(span);
+        if (post) hideElement(post);
+      }
+    }
+
+    // Text-based fallback: scan all spans inside feed posts for promoted labels
+    const feedSpans = root.querySelectorAll(
+      '.feed-shared-update-v2 span, .occludable-update span, [data-urn^="urn:li:activity"] span'
+    );
+    for (const span of feedSpans) {
+      const text = (span.textContent || "").trim().toLowerCase();
+      if (PROMOTED_LABELS.includes(text)) {
         const post = findFeedPostParent(span);
         if (post) hideElement(post);
       }
